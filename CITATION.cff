@@ -5,7 +5,7 @@ authors:
   - name: "nirasawa"
 repository-code: "https://github.com/s1lv2rs0ul/Radial-Intensity-Analysis_Cellpose"
 license: MIT
-version: 1.0.0
+version: 1.1.0
 date-released: 2026-08-11
 keywords:
   - micropatterning

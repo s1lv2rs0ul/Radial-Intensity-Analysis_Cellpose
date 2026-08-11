@@ -18,6 +18,17 @@ modes, per-colony statistics, and publication-ready figures out of one notebook.
 | **Figures** | Per-image diagnostics + a multi-panel publication figure (300 dpi PNG + vector PDF, npg palette) |
 | **Input flexibility** | Accepts 4D `(Z, C, Y, X)` stacks or already max-projected 3D `(C, Y, X)` TIFFs |
 
+**v1.1 — methods adopted from the Tapenade paper** (Gros et al., *eLife* 2026,
+[doi:10.7554/eLife.107154](https://doi.org/10.7554/eLife.107154) — the group whose
+`tapenade` package this pipeline already builds on):
+
+| Addition | What it gives you |
+|---|---|
+| Nuclear morphometrics | Per-nucleus eccentricity + radial-alignment (cos² of major axis vs radial direction) profiles — nuclei as proxies for cell deformation |
+| Positive-fraction profiles | Otsu threshold per colony → fraction of marker-positive nuclei vs radius (their sparse-marker/FoxA2 approach) |
+| Co-expression histograms | Per-nucleus pairwise 2D histograms with Otsu quadrants (their Fig. 5f) |
+| DAPI-field re-normalization | Optional masked-Gaussian nuclear-stain field correction for uneven illumination (2D version of their Fig. 5; `DAPI_FIELD_NORM`) |
+
 The original StarDist notebooks (`Normalization_code_V3.ipynb`,
 `Non-Normalization_Code_V3.ipynb`) are retained for provenance and comparison.
 
@@ -87,6 +98,13 @@ pip install -r requirements.txt
   Set `True` for per-colony max-normalization when only the shape matters.
 - The per-pixel truncation past `MAX_RADIUS_UM` reproduces the original V3 behaviour
   exactly, for backward comparability.
+
+## Related tools for 3D / gastruloid work
+
+For whole-mount 3D gastruloids, the Tapenade ecosystem provides a pretrained StarDist3D
+nuclei model ([Zenodo 14748083](https://zenodo.org/records/14748083)), dual-view
+registration/fusion, spectral unmixing, and napari plugins:
+[GuignardLab/tapenade](https://github.com/GuignardLab/tapenade).
 
 ## Citation
 
