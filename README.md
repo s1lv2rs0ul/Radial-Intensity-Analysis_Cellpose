@@ -1,91 +1,97 @@
-# Radial Intensity Analysis — Cellpose Fork
+# Radial Intensity Profiling of Micropatterned Colonies
 
-Fork of [Radial-Intensity-Analysis_V3](https://github.com/s1lv2rs0ul/Radial-Intensity-Analysis_V3) with **Cellpose-SAM** as the nucleus segmenter instead of StarDist. Cellpose handles densely packed and irregularly shaped stem cell nuclei more reliably.
+Quantitative radial analysis of immunofluorescence in micropatterned stem-cell colonies
+(e.g. RUES2 + Activin A → SMAD2 edge signaling). Dual segmentation backends, dual analysis
+modes, per-colony statistics, and publication-ready figures out of one notebook.
 
-## Notebooks
+## The flagship notebook: `radial_profile_pipeline.ipynb`
 
-| Notebook | Segmenter | Signal region | Notes |
-|----------|-----------|----------------|-------|
-| **`radial_profile_cellpose.ipynb`** | Cellpose-SAM (v4) | Inside nuclear mask | New — cleaner code, tunable parameters at top, honest error logging |
-| `Normalization_code_V3.ipynb` | StarDist 2D | Inside nuclear mask | Original — normalized profiles |
-| `Non-Normalization_Code_V3.ipynb` | StarDist 2D | All pixels (no mask) | Original — absolute intensity |
+| Capability | Detail |
+|---|---|
+| **Segmentation** | StarDist (default, ~2–3 s/image on CPU) or Cellpose-SAM (better for dense/irregular nuclei; practical with GPU) — one parameter switch |
+| **Per-pixel mode** | Classic masked radial binning, identical truncation behaviour to the original V3 pipeline |
+| **Per-nucleus mode** | One data point per nucleus + LOWESS trend — eliminates the small-bin noise spike near r = 0 and matches how the micropattern field quantifies nuclear factors (Etoc 2016, Chhabra 2019) |
+| **DAPI ratio** | Optional Cn/DAPI per nucleus, controls for density and imaging depth |
+| **Statistics** | Colony-level bootstrap 95% CI on the mean profile (colonies, not nuclei, are the resampling unit) |
+| **Feature extraction** | Per colony: peak radius, peak value, half-max boundary radius, center:edge ratio → `colony_features.csv`, ready for group comparisons |
+| **QC** | Angular asymmetry metric (CV across 12 sectors) flags off-center/asymmetric colonies; failed images logged, never silently skipped |
+| **Figures** | Per-image diagnostics + a multi-panel publication figure (300 dpi PNG + vector PDF, npg palette) |
+| **Input flexibility** | Accepts 4D `(Z, C, Y, X)` stacks or already max-projected 3D `(C, Y, X)` TIFFs |
 
-**Start with `radial_profile_cellpose.ipynb`.** The two `_V3` notebooks are kept for reference and comparison.
+The original StarDist notebooks (`Normalization_code_V3.ipynb`,
+`Non-Normalization_Code_V3.ipynb`) are retained for provenance and comparison.
 
-## What each pipeline does
+## Input assumptions
 
-For each input TIFF:
-
-1. Max-projects the Z-stack to 2D
-2. Contrast-enhances the DAPI channel (CLAHE in the Cellpose version, tapenade global stretch in the V3 versions)
-3. Segments nuclei on DAPI
-4. Computes the colony center from the nuclear mask (Cellpose + V3 normalized) or as the geometric image center (V3 non-normalized)
-5. Bins pixel intensities by distance from the center → per-channel radial profile
-6. Saves per-image plots, CSV, and a PowerPoint summary
-
-## Input
-
-A folder of 4D TIFFs in (Z, channel, Y, X) order. Assumes 3 channels:
+3-channel TIFFs, ordered:
 
 | Channel | Marker |
-|---------|--------|
+|---|---|
 | C0 | ZO-1 |
 | C1 | DAPI |
 | C2 | SMAD2 |
 
-Pixel scale defaults to `0.5 µm/px` — change `SCALE_UM_PER_PX` at the top of the Cellpose notebook for your microscope.
+Different markers/order/pixel size? Edit `CHANNEL_NAMES`, `DAPI_IDX`, `SCALE_UM_PER_PX`
+in the parameters cell.
 
-## Output
-
-For an input folder `images/` the pipeline creates:
+## Outputs
 
 ```
-images/
-├── radial_outputs/      # <image>_radial.csv per image (all channels)
-├── plots/<image>/       # per-image PNGs
-├── summary/             # combined CSV + per-channel cross-image plots
-│                        # + failed_images.log if anything errored
-└── ppt_reports/         # batch_report.pptx
+BASE_DIR/
+├── radial_outputs/   <image>_radial.csv (per-pixel) + <image>_nuclei.csv (per-nucleus)
+├── plots/<image>/    max projection, segmentation overlay, heatmaps,
+│                     per-pixel profiles, per-nucleus scatter + LOWESS
+├── summary/          combined CSVs, per-channel cross-colony figures,
+│                     colony_features.csv, publication_figure.png/.pdf,
+│                     failed_images.log
+└── ppt_reports/      batch_report.pptx
 ```
 
 ## Install
 
-Tested on macOS with Python 3.10. Using conda:
+Python 3.10, tested on macOS.
 
 ```bash
 conda env create -f environment.yml
 conda activate radial-cellpose
 ```
 
-Or with pip:
+or
 
 ```bash
 pip install -r requirements.txt
 ```
 
-Cellpose downloads the CPSAM model on first run (~50 MB, cached under `~/.cellpose/`).
-
-## Tuning Cellpose
-
-Parameters live at the top of the notebook. Common adjustments:
-
-| Symptom | Fix |
-|---------|-----|
-| Missing nuclei (undersegmentation) | Lower `CELLPOSE_CELLPROB_THRESHOLD` (try -1) |
-| Extra false nuclei | Raise `CELLPOSE_CELLPROB_THRESHOLD` (try +1) or `CELLPOSE_MIN_SIZE` |
-| Nuclei merged | Lower `CELLPOSE_FLOW_THRESHOLD` (try 0.3) |
-| Nuclei split | Raise `CELLPOSE_FLOW_THRESHOLD` (try 0.5) |
-| Wrong size range | Set `CELLPOSE_DIAMETER_PX` explicitly (in pixels) |
-
 ## Run
 
-1. Open `radial_profile_cellpose.ipynb` in Jupyter.
-2. Set `BASE_DIR` at the bottom to your folder of TIFFs.
-3. Run all cells.
+1. Open `radial_profile_pipeline.ipynb`
+2. Set `BASE_DIR` in the batch cell to your TIFF folder
+3. Run all cells
+
+## Tuning segmentation
+
+| Symptom | Fix |
+|---|---|
+| Missing nuclei (Cellpose) | lower `CELLPOSE_CELLPROB_THRESHOLD` (try −1) |
+| False detections | raise `CELLPOSE_CELLPROB_THRESHOLD` (+1) or `CELLPOSE_MIN_SIZE` |
+| Merged nuclei | lower `CELLPOSE_FLOW_THRESHOLD` (0.3) |
+| Split nuclei | raise `CELLPOSE_FLOW_THRESHOLD` (0.5) |
+| StarDist under/over-detecting | adjust `STARDIST_NORM_PERCENTILES` |
+
+## Method notes
+
+- Contrast enhancement uses `tapenade.global_contrast_enhancement` (percentiles 0.5/99.5)
+  applied per channel after Gaussian smoothing (σ = 1 px).
+- Profiles are reported in enhanced-intensity arbitrary units by default
+  (`NORMALIZE_PROFILES = False`), preserving inter-colony amplitude differences.
+  Set `True` for per-colony max-normalization when only the shape matters.
+- The per-pixel truncation past `MAX_RADIUS_UM` reproduces the original V3 behaviour
+  exactly, for backward comparability.
 
 ## Citation
 
-If you use this in published work, please cite this repository.
+If this pipeline contributes to a publication, please cite this repository
+(see `CITATION.cff` — GitHub's "Cite this repository" button uses it).
 
 ## License
 

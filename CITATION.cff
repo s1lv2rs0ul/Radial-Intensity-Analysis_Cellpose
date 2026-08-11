@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+message: "If you use this pipeline, please cite it as below."
+title: "Radial Intensity Profiling of Micropatterned Colonies"
+authors:
+  - name: "nirasawa"
+repository-code: "https://github.com/s1lv2rs0ul/Radial-Intensity-Analysis_Cellpose"
+license: MIT
+version: 1.0.0
+date-released: 2026-08-11
+keywords:
+  - micropatterning
+  - radial-intensity
+  - image-analysis
+  - stardist
+  - cellpose
+  - SMAD2
+  - stem-cells
