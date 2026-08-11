@@ -29,8 +29,16 @@ modes, per-colony statistics, and publication-ready figures out of one notebook.
 | Co-expression histograms | Per-nucleus pairwise 2D histograms with Otsu quadrants (their Fig. 5f) |
 | DAPI-field re-normalization | Optional masked-Gaussian nuclear-stain field correction for uneven illumination (2D version of their Fig. 5; `DAPI_FIELD_NORM`) |
 
+**v1.2 additions:**
+
+| Addition | What it gives you |
+|---|---|
+| Group-comparison figure | Mean profile ± 1 SD (or SEM) per experimental group (genotype x treatment), groups assigned by filename pattern, one subplot per panel |
+| 3D gastruloid module | Downloads + loads the pretrained `tapenade_stardist` StarDist3D (Zenodo, 12.6 MB), segments 3D stacks, and builds a per-nucleus table with distance-to-border — the 3D analogue of the 2D analysis |
+
 The original StarDist notebooks (`Normalization_code_V3.ipynb`,
-`Non-Normalization_Code_V3.ipynb`) are retained for provenance and comparison.
+`Non-Normalization_Code_V3.ipynb`) are retained for provenance and comparison, and the
+superseded v1.0 notebook is kept in [`legacy/`](legacy/).
 
 ## Input assumptions
 
@@ -98,6 +106,21 @@ pip install -r requirements.txt
   Set `True` for per-colony max-normalization when only the shape matters.
 - The per-pixel truncation past `MAX_RADIUS_UM` reproduces the original V3 behaviour
   exactly, for backward comparability.
+
+## Method attribution
+
+The cell-scale analysis methods adopted in v1.1+ (DAPI-field re-normalization,
+positive-fraction maps, co-expression histograms, nuclei-as-deformation-proxies) and the
+pretrained StarDist3D gastruloid model are from the **Guignard and Tlili groups** (Turing
+Centre for Living Systems, Aix-Marseille University). If you use those components, cite:
+
+> Gros A, Vanaret J, Dunsing-Eichenauer V, Rostan A, Roudot P, Lenne P-F, Guignard L,
+> Tlili S. *A quantitative pipeline for whole-mount deep imaging and analysis of
+> multi-layered organoids across scales.* eLife 2026;14:RP107154.
+> doi: [10.7554/eLife.107154](https://doi.org/10.7554/eLife.107154)
+
+together with their [`tapenade` package](https://github.com/GuignardLab/tapenade) and, if
+used, the StarDist3D weights ([Zenodo 14748083](https://zenodo.org/records/14748083)).
 
 ## Related tools for 3D / gastruloid work
 

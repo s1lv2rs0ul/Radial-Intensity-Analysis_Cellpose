@@ -5,7 +5,7 @@ authors:
   - name: "nirasawa"
 repository-code: "https://github.com/s1lv2rs0ul/Radial-Intensity-Analysis_Cellpose"
 license: MIT
-version: 1.1.0
+version: 1.2.0
 date-released: 2026-08-11
 keywords:
   - micropatterning
@@ -14,4 +14,27 @@ keywords:
   - stardist
   - cellpose
   - SMAD2
-  - stem-cells
+references:
+  - type: article
+    title: "A quantitative pipeline for whole-mount deep imaging and analysis of multi-layered organoids across scales"
+    authors:
+      - family-names: Gros
+        given-names: Alice
+      - family-names: Vanaret
+        given-names: Jules
+      - family-names: Dunsing-Eichenauer
+        given-names: Valentin
+      - family-names: Rostan
+        given-names: Agathe
+      - family-names: Roudot
+        given-names: Philippe
+      - family-names: Lenne
+        given-names: "Pierre-François"
+      - family-names: Guignard
+        given-names: "Léo"
+      - family-names: Tlili
+        given-names: Sham
+    journal: eLife
+    year: 2026
+    volume: 14
+    doi: 10.7554/eLife.107154
