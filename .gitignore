@@ -1,0 +1,31 @@
+# Microscopy data — never commit raw images
+*.tif
+*.tiff
+*.czi
+*.lif
+*.nd2
+
+# Pipeline outputs
+radial_outputs/
+plots/
+summary/
+ppt_reports/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors
+.vscode/
+.idea/
