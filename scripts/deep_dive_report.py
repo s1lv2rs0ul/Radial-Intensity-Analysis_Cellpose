@@ -390,30 +390,59 @@ def batch_curve(base_dir, channel='C2'):
     return bins, sm, lo_s, hi_s, len(piv), pairs
 
 
+def apply_rise_style(ax, y0, ymax, head=0.30):
+    """The approved SMAD2 presentation rules: curve start anchored at the origin
+    corner, no y numbers, fine invisible y segments, x labeled every 50 um,
+    range cropped to the data."""
+    rng_y = (ymax - y0) or 1.0
+    ax.set_ylim(y0 - 0.01 * rng_y, ymax + head * rng_y)
+    ax.set_yticks([])
+    for gy in np.linspace(y0, ymax, 11)[1:]:
+        ax.axhline(gy, color='gray', lw=0.4, alpha=0.18, zorder=0)
+    ax.set_xlim(0, MAX_R_UM + 10)
+    ax.set_xticks(np.arange(0, MAX_R_UM + 10, 50))
+
+
 def combined_page(pdf, base_dir, label, png_out=None):
     """All colonies fused into one weighted graph (all three channels, peak = 1)."""
     fig, ax = plt.subplots(figsize=(12, 7))
     n_col = 0
+    curves = {}
+    stats_txt = ''
     for ccol, (cn, cc) in CHANNEL.items():
         bins, sm, lo_s, hi_s, n_col, pairs = batch_curve(base_dir, ccol)
         peak = np.nanmax(sm[:, 1]) or 1
-        ax.fill_between(bins, lo_s / peak, hi_s / peak, color=cc, alpha=0.15,
-                        linewidth=0)
-        ax.plot(sm[:, 0], sm[:, 1] / peak, color=cc, lw=2.8, label=cn)
+        curves[ccol] = (bins, sm[:, 0], sm[:, 1] / peak, lo_s / peak, hi_s / peak)
         if ccol == 'C2' and len(pairs) >= 5:
             ce = pd.DataFrame(pairs, columns=['center', 'edge'])
             _, p = wilcoxon(ce['edge'], ce['center'], alternative='greater')
             fold = (ce['edge'] / ce['center']).median()
-            ax.text(0.03, 0.96,
-                    f"SMAD2 edge vs center: {fold:.2f}-fold, "
-                    f"p = {p:.3f} (paired Wilcoxon, n = {len(ce)}, real nuclei only)",
-                    transform=ax.transAxes, fontsize=10, va='top')
-    ax.set_xlim(0, MAX_R_UM + 10)
-    ax.set_xticks(np.arange(0, MAX_R_UM + 10, 50))
-    ax.set_ylim(0, 1.08)
-    ax.grid(axis='y', linestyle=':', alpha=0.4)
+            stars = ('***' if p < 0.001 else '**' if p < 0.01
+                     else '*' if p < 0.05 else 'n.s.')
+            stats_txt = (f"{stars}   SMAD2 edge vs center: {fold:.2f}-fold, "
+                         f"p = {p:.3f} (paired Wilcoxon, n = {len(ce)}, real only)")
+    y0 = min(float(np.nanmin(v[2])) for v in curves.values())
+    ymax = max(float(np.nanmax(v[4])) for v in curves.values())
+    for ccol, (cn, cc) in CHANNEL.items():
+        bins, sx, sy, lo_n, hi_n = curves[ccol]
+        ax.fill_between(bins, lo_n, hi_n, color=cc, alpha=0.14, linewidth=0)
+        ax.plot(sx, sy, color=cc, lw=2.8, label=cn)
+    apply_rise_style(ax, y0, ymax)
+    ax.axvspan(0, 95, color='gray', alpha=0.05)
+    ax.axvspan(180, 240, color='#E64B35', alpha=0.05)
+    rng_y = ymax - y0
+    ax.text(47, ymax + 0.20 * rng_y, 'center', ha='center', fontsize=10,
+            color='#555555')
+    ax.text(210, ymax + 0.20 * rng_y, 'edge', ha='center', fontsize=10,
+            color='#E64B35')
+    if stats_txt:
+        ybr = ymax + 0.10 * rng_y
+        ax.plot([47, 47, 210, 210],
+                [ybr - 0.02 * rng_y, ybr, ybr, ybr - 0.02 * rng_y],
+                color='k', lw=1)
+        ax.text(128, ybr + 0.02 * rng_y, stats_txt, ha='center', fontsize=10)
     ax.set_xlabel('Distance from Center (um)', fontsize=12)
-    ax.set_ylabel('Normalized Intensity (peak = 1)', fontsize=12)
+    ax.set_ylabel('Normalized Intensity (a.u.)', fontsize=12)
     ax.legend(fontsize=11, loc='lower right')
     ax.set_title(f'COMBINED — {label}: all {n_col} colonies as one\n'
                  f'(QC-weighted, LOWESS-smoothed, band = colony bootstrap 95% CI)',
@@ -428,27 +457,28 @@ def comparison_page(pdf, entries, png_out=None):
     """Overlay combined SMAD2 curves of several batches (drug vs control etc.)."""
     fig, ax = plt.subplots(figsize=(12, 7))
     stats = []
+    drawn = []
     for k, (label, path) in enumerate(entries):
         bins, sm, lo_s, hi_s, n_col, pairs = batch_curve(path, 'C2')
         peak = np.nanmax(sm[:, 1]) or 1
-        col = NPG[k % len(NPG)]
-        ax.fill_between(bins, lo_s / peak, hi_s / peak, color=col, alpha=0.15,
-                        linewidth=0)
-        ax.plot(sm[:, 0], sm[:, 1] / peak, color=col, lw=2.8,
-                label=f'{label} (n = {n_col})')
+        drawn.append((bins, sm[:, 0], sm[:, 1] / peak, lo_s / peak,
+                      hi_s / peak, NPG[k % len(NPG)], f'{label} (n = {n_col})'))
         ce = pd.DataFrame(pairs, columns=['center', 'edge'])
         stats.append((label, (ce['edge'] / ce['center']).values))
-    if len(stats) == 2 and min(len(s[1]) for s in stats) >= 3:
+    y0 = min(float(np.nanmin(d[2])) for d in drawn)
+    ymax = max(float(np.nanmax(d[4])) for d in drawn)
+    for bins, sx, sy, lo_n, hi_n, col, lab in drawn:
+        ax.fill_between(bins, lo_n, hi_n, color=col, alpha=0.14, linewidth=0)
+        ax.plot(sx, sy, color=col, lw=2.8, label=lab)
+    apply_rise_style(ax, y0, ymax, head=0.22)
+    rng_y = ymax - y0
+    if len(stats) == 2 and min(len(s_[1]) for s_ in stats) >= 3:
         _, p = mannwhitneyu(stats[0][1], stats[1][1], alternative='two-sided')
-        ax.text(0.03, 0.96,
+        ax.text(0.03, 0.97,
                 f'edge/center fold: {stats[0][0]} median '
                 f'{np.median(stats[0][1]):.2f} vs {stats[1][0]} median '
                 f'{np.median(stats[1][1]):.2f}   Mann-Whitney p = {p:.3f}',
                 transform=ax.transAxes, fontsize=10, va='top')
-    ax.set_xlim(0, MAX_R_UM + 10)
-    ax.set_xticks(np.arange(0, MAX_R_UM + 10, 50))
-    ax.set_ylim(0, 1.08)
-    ax.grid(axis='y', linestyle=':', alpha=0.4)
     ax.set_xlabel('Distance from Center (um)', fontsize=12)
     ax.set_ylabel('Normalized SMAD2 (peak = 1)', fontsize=12)
     ax.legend(fontsize=11, loc='lower right')
