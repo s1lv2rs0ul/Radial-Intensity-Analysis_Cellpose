@@ -376,6 +376,16 @@ def batch_curve(base_dir, channel='C2'):
     lo, hi = np.nanpercentile(boots, [2.5, 97.5], axis=0)
     bins = piv.columns.values
     mean = wm(np.arange(len(piv)))
+
+    # NaN-cut the unsupported right tail: past the colony edge only a few weak
+    # bins remain and the curve would dangle mid-fall. End the line where total
+    # weight drops below 25% of its peak (same spirit as the V3 truncation).
+    den_all = w.sum(axis=0)
+    supported = np.where(den_all >= 0.25 * den_all.max())[0]
+    if len(supported):
+        last = supported[-1] + 1
+        bins, mean, lo, hi = bins[:last], mean[:last], lo[:last], hi[:last]
+
     ok = np.isfinite(mean)
     sm = lowess(mean[ok], bins[ok], frac=0.18, return_sorted=True)
     lo_s = pd.Series(lo).interpolate(limit_direction='both').values
@@ -396,7 +406,9 @@ def apply_rise_style(ax, y0, ymax, head=0.30):
     range cropped to the data."""
     rng_y = (ymax - y0) or 1.0
     ax.set_ylim(y0 - 0.01 * rng_y, ymax + head * rng_y)
-    ax.set_yticks([])
+    ticks = np.arange(np.ceil(y0 / 0.2) * 0.2, ymax + 0.001, 0.2)
+    ax.set_yticks(np.round(ticks, 1))
+    ax.tick_params(axis='y', labelsize=10)
     for gy in np.linspace(y0, ymax, 11)[1:]:
         ax.axhline(gy, color='gray', lw=0.4, alpha=0.18, zorder=0)
     ax.set_xlim(0, MAX_R_UM + 10)
@@ -421,12 +433,15 @@ def combined_page(pdf, base_dir, label, png_out=None):
                      else '*' if p < 0.05 else 'n.s.')
             stats_txt = (f"{stars}   SMAD2 edge vs center: {fold:.2f}-fold, "
                          f"p = {p:.3f} (paired Wilcoxon, n = {len(ce)}, real only)")
-    y0 = min(float(np.nanmin(v[2])) for v in curves.values())
     ymax = max(float(np.nanmax(v[4])) for v in curves.values())
+    y0 = 0.0   # lines terminate at zero at the pattern edge, so the origin is real
     for ccol, (cn, cc) in CHANNEL.items():
         bins, sx, sy, lo_n, hi_n = curves[ccol]
-        ax.fill_between(bins, lo_n, hi_n, color=cc, alpha=0.14, linewidth=0)
-        ax.plot(sx, sy, color=cc, lw=2.8, label=cn)
+        bins_z = np.append(bins, MAX_R_UM)
+        ax.fill_between(bins_z, np.append(lo_n, 0), np.append(hi_n, 0),
+                        color=cc, alpha=0.14, linewidth=0)
+        ax.plot(np.append(sx, MAX_R_UM), np.append(sy, 0),
+                color=cc, lw=2.8, label=cn)
     apply_rise_style(ax, y0, ymax)
     ax.axvspan(0, 95, color='gray', alpha=0.05)
     ax.axvspan(180, 240, color='#E64B35', alpha=0.05)
@@ -465,11 +480,14 @@ def comparison_page(pdf, entries, png_out=None):
                       hi_s / peak, NPG[k % len(NPG)], f'{label} (n = {n_col})'))
         ce = pd.DataFrame(pairs, columns=['center', 'edge'])
         stats.append((label, (ce['edge'] / ce['center']).values))
-    y0 = min(float(np.nanmin(d[2])) for d in drawn)
     ymax = max(float(np.nanmax(d[4])) for d in drawn)
+    y0 = 0.0
     for bins, sx, sy, lo_n, hi_n, col, lab in drawn:
-        ax.fill_between(bins, lo_n, hi_n, color=col, alpha=0.14, linewidth=0)
-        ax.plot(sx, sy, color=col, lw=2.8, label=lab)
+        bins_z = np.append(bins, MAX_R_UM)
+        ax.fill_between(bins_z, np.append(lo_n, 0), np.append(hi_n, 0),
+                        color=col, alpha=0.14, linewidth=0)
+        ax.plot(np.append(sx, MAX_R_UM), np.append(sy, 0),
+                color=col, lw=2.8, label=lab)
     apply_rise_style(ax, y0, ymax, head=0.22)
     rng_y = ymax - y0
     if len(stats) == 2 and min(len(s_[1]) for s_ in stats) >= 3:
