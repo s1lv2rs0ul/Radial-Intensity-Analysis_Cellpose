@@ -30,6 +30,8 @@ from skimage.filters import threshold_otsu
 from statsmodels.nonparametric.smoothers_lowess import lowess
 
 A_EXP, LO, HI, CAP = 113.1, 45.2, 282.7, 400.0
+MAX_R_UM = 250   # micropattern radius: nuclei beyond are off-pattern junk (the reason
+                 # the original V3 code NaN-truncated past this radius)
 PRED_DENS = 0.6 / A_EXP * 1000
 N_SEC = 12
 CHANNEL = {'C0': ('ZO-1', '#00A087'), 'C1': ('DAPI', '#3C5488'),
@@ -64,7 +66,7 @@ def build(base_dir, pixel_overrides):
             nuc = pd.read_csv(os.path.join(OUT, f'{stem}_nuclei.csv'))
             pix = pd.read_csv(os.path.join(OUT, f'{stem}_radial.csv'))
             sc = pixel_size_for(img, pixel_overrides)
-            kept = nuc[nuc['size_ok']].copy()
+            kept = nuc[nuc['size_ok'] & (nuc['distance_um'] <= MAX_R_UM)].copy()
             rej = nuc[~nuc['size_ok']]
             cx, cy = kept['x_px'].mean(), kept['y_px'].mean()
             kept['x_um'] = (kept['x_px'] - cx) * sc
@@ -123,7 +125,7 @@ def build(base_dir, pixel_overrides):
                 ax.plot(pix['Radius'],
                         pd.Series(pix[ccol]).interpolate(limit_direction='both'),
                         lw=1.6, color=cc, label=cn)
-            ax.set_xlim(0, 300)
+            ax.set_xlim(0, MAX_R_UM + 10)
             ax.legend(fontsize=7)
             ax.grid(alpha=0.3)
             ax.set_title('C  per-pixel profiles')
@@ -133,7 +135,7 @@ def build(base_dir, pixel_overrides):
                 sm = lowess(kept['C2'], kept['distance_um'], frac=0.25,
                             return_sorted=True)
                 ax.plot(sm[:, 0], sm[:, 1], color='#E64B35', lw=2.5)
-            ax.set_xlim(0, 300)
+            ax.set_xlim(0, MAX_R_UM + 10)
             ax.grid(alpha=0.3)
             ax.set_title('D  SMAD2 per-nucleus + LOWESS')
             ax = fig.add_subplot(gs[1, 3])
@@ -162,7 +164,7 @@ def build(base_dir, pixel_overrides):
                     label='cos2 radial')
             ax.axhline(0.5, color='gray', ls=':')
             ax.set_ylim(0, 1)
-            ax.set_xlim(0, 300)
+            ax.set_xlim(0, MAX_R_UM + 10)
             ax.legend(fontsize=7)
             ax.set_title('H  nuclear shape vs radius')
             ax = fig.add_subplot(gs[2, 3])
@@ -192,7 +194,7 @@ def build(base_dir, pixel_overrides):
                 ax.plot(rb.index, rb['mean'], color='#E64B35', lw=2)
                 ax.fill_between(rb.index, rb['mean'] - rb['sem'],
                                 rb['mean'] + rb['sem'], color='#E64B35', alpha=0.25)
-            ax.set_xlim(0, 300)
+            ax.set_xlim(0, MAX_R_UM + 10)
             ax.grid(alpha=0.3)
             ax.set_title('K  SMAD2/DAPI vs radius')
 
@@ -224,7 +226,7 @@ def build(base_dir, pixel_overrides):
                 edge_means[si] = g[g['distance_um'] >= 0.75 * r_col]['C2'].mean()
             allp = kept.groupby('bin')['C2'].mean()
             ax.plot(allp.index, allp.values, color='k', lw=2.5, label='all pies')
-            ax.set_xlim(0, 300)
+            ax.set_xlim(0, MAX_R_UM + 10)
             ax.legend(fontsize=7)
             ax.grid(alpha=0.3)
             ax.set_title('N  SMAD2 per pie (hue = direction)')
