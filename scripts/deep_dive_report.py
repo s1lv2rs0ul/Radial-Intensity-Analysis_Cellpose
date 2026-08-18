@@ -317,72 +317,7 @@ def build(base_dir, pixel_overrides):
             pdf.savefig(fig, bbox_inches='tight')
             plt.close(fig)
 
-            # --- dedicated large pie-detail page (M + N + companion, readable size) ---
-            fig2 = plt.figure(figsize=(19, 5.8))
-            gs2 = fig2.add_gridspec(1, 3, width_ratios=[1, 1.5, 0.9], wspace=0.25)
-            fig2.suptitle(f'{stem} — directional (pie) detail', fontsize=14,
-                          fontweight='bold', y=1.02)
-
-            axm = fig2.add_subplot(gs2[0, 0], projection='polar')
-            pcm = axm.pcolormesh(T, R, M, cmap='inferno')
-            if len(synth):
-                s_ang2 = np.arctan2(synth['y_px'] - cy, synth['x_px'] - cx)
-                s_sec2 = np.clip(((s_ang2 + np.pi) / (2 * np.pi) * N_SEC).astype(int),
-                                 0, N_SEC - 1)
-                s_bin2 = np.digitize(synth['distance_um'], re2) - 1
-                for b2, s2 in set(zip(s_bin2, s_sec2)):
-                    if 0 <= b2 < len(re2) - 1:
-                        axm.plot(-np.pi + (s2 + 0.5) * 2 * np.pi / N_SEC,
-                                 (re2[b2] + re2[b2 + 1]) / 2, 'o',
-                                 mfc='none', mec='#00E5FF', mew=1.6, ms=11)
-            axm.set_yticklabels([]); axm.set_xticklabels([])
-            axm.set_title('M — intensity by direction\n(cyan rings = imputed cells)',
-                          fontsize=11)
-            plt.colorbar(pcm, ax=axm, shrink=0.6)
-
-            axn = fig2.add_subplot(gs2[0, 1])
-            for si in range(N_SEC):
-                g2 = kept[kept['sector'] == si]
-                if len(g2) < 15:
-                    continue
-                prof2 = g2.groupby('bin')['C2'].mean()
-                axn.plot(prof2.index, prof2.values, lw=1.5,
-                         color=plt.cm.hsv(si / N_SEC), alpha=0.9)
-            allp2 = kept.groupby('bin')['C2'].mean()
-            axn.plot(allp2.index, allp2.values, color='k', lw=2.8, label='all pies')
-            axn.set_xlim(0, MAX_R_UM + 10); axn.grid(alpha=0.3); axn.legend(fontsize=9)
-            axn.set_xlabel('Distance from Center (um)'); axn.set_ylabel('SMAD2 (a.u.)')
-            axn.set_title('N — per-pie profiles (hue = direction)', fontsize=11)
-
-            axq = fig2.add_subplot(gs2[0, 2], projection='polar')
-            if edge_means:
-                imp_secs2 = set()
-                if len(synth):
-                    sa2 = np.arctan2(synth['y_px'] - cy, synth['x_px'] - cx)
-                    imp_secs2 = set(np.clip(((sa2 + np.pi) / (2 * np.pi) * N_SEC)
-                                            .astype(int), 0, N_SEC - 1))
-                evs2 = pd.Series(edge_means)
-                emin2, emax2 = evs2.min(), evs2.max()
-                rng2 = (emax2 - emin2) or 1.0
-                for si, ev in edge_means.items():
-                    th2 = -np.pi + (si + 0.5) * 2 * np.pi / N_SEC
-                    imp2 = si in imp_secs2
-                    axq.bar(th2, 0.3 + 0.7 * (ev - emin2) / rng2,
-                            width=2 * np.pi / N_SEC * 0.95,
-                            color=plt.cm.hsv(si / N_SEC), alpha=0.9,
-                            edgecolor='#00E5FF' if imp2 else 'white',
-                            linewidth=2 if imp2 else 0.6,
-                            hatch='///' if imp2 else None)
-                    axq.text(th2, 1.24, str(si + 1), ha='center', va='center',
-                             fontsize=8, color='#444444')
-                axq.plot(np.linspace(-np.pi, np.pi, 100), np.ones(100),
-                         color='gray', lw=0.7, ls=':')
-            axq.set_ylim(0, 1.32); axq.set_yticklabels([]); axq.set_xticklabels([])
-            axq.set_title('companion pie — hue matches N,\nlength = edge, hatch = imputed',
-                          fontsize=10)
-            pdf.savefig(fig2, bbox_inches='tight')
-            plt.close(fig2)
-            print(f'  page: {short} ({len(kept)} kept) + pie detail')
+print(f'  page: {short} ({len(kept)} kept)')
     print(f'PDF: {pdf_path} ({os.path.getsize(pdf_path) / 1e6:.1f} MB)')
     return pdf_path
 
