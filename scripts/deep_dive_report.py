@@ -214,9 +214,19 @@ def build(base_dir, pixel_overrides):
                 if not np.isnan(bi):
                     M[int(bi), int(si)] = v
             pc = ax.pcolormesh(T, R, M, cmap='inferno')
+            if len(synth):
+                s_ang = np.arctan2(synth['y_px'] - cy, synth['x_px'] - cx)
+                s_sec = np.clip(((s_ang + np.pi) / (2 * np.pi) * N_SEC).astype(int),
+                                0, N_SEC - 1)
+                s_bin = np.digitize(synth['distance_um'], re2) - 1
+                for bi_s, si_s in set(zip(s_bin, s_sec)):
+                    if 0 <= bi_s < len(re2) - 1:
+                        thc = -np.pi + (si_s + 0.5) * 2 * np.pi / N_SEC
+                        rc_ = (re2[bi_s] + re2[bi_s + 1]) / 2
+                        ax.plot(thc, rc_, 'o', mfc='none', mec='#00E5FF', mew=1.4, ms=9)
             ax.set_yticklabels([])
             ax.set_xticklabels([])
-            ax.set_title('M  SMAD2 intensity by direction', pad=10)
+            ax.set_title('M  SMAD2 intensity by direction\n(cyan rings = imputed cells)', pad=10)
             plt.colorbar(pc, ax=ax, shrink=0.6)
 
             from matplotlib.gridspec import GridSpecFromSubplotSpec
@@ -245,11 +255,19 @@ def build(base_dir, pixel_overrides):
             axp = fig.add_subplot(gsn[0, 1], projection='polar')
             if edge_means:
                 emax = max(edge_means.values())
+                imp_secs = set()
+                if len(synth):
+                    s_ang = np.arctan2(synth['y_px'] - cy, synth['x_px'] - cx)
+                    imp_secs = set(np.clip(((s_ang + np.pi) / (2 * np.pi) * N_SEC)
+                                           .astype(int), 0, N_SEC - 1))
                 for si, ev in edge_means.items():
                     th_c = -np.pi + (si + 0.5) * 2 * np.pi / N_SEC
+                    is_imp = si in imp_secs
                     axp.bar(th_c, ev / emax, width=2 * np.pi / N_SEC * 0.95,
                             color=plt.cm.hsv(si / N_SEC), alpha=0.9,
-                            edgecolor='white', linewidth=0.5)
+                            edgecolor='#00E5FF' if is_imp else 'white',
+                            linewidth=1.8 if is_imp else 0.5,
+                            hatch='///' if is_imp else None)
                     axp.text(th_c, 1.22, str(si + 1), ha='center', va='center',
                              fontsize=6, color='#444444')
                 axp.plot(np.linspace(-np.pi, np.pi, 100), np.ones(100),
@@ -257,7 +275,7 @@ def build(base_dir, pixel_overrides):
             axp.set_ylim(0, 1.3)
             axp.set_yticklabels([])
             axp.set_xticklabels([])
-            axp.set_title('edge intensity\nper pie', fontsize=8, pad=8)
+            axp.set_title('edge intensity per pie\n(hatched = contains imputed)', fontsize=8, pad=8)
 
             ax = fig.add_subplot(gs[4, 0:4])
             ax.axis('off')
