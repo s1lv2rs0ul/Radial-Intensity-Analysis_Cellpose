@@ -231,7 +231,7 @@ def build(base_dir, pixel_overrides):
 
             from matplotlib.gridspec import GridSpecFromSubplotSpec
             gsn = GridSpecFromSubplotSpec(1, 2, subplot_spec=gs[3, 3],
-                                          width_ratios=[2.0, 1.0], wspace=0.05)
+                                          width_ratios=[1.35, 1.0], wspace=0.02)
             ax = fig.add_subplot(gsn[0, 0])
             edge_means = {}
             for si in range(N_SEC):
@@ -254,7 +254,9 @@ def build(base_dir, pixel_overrides):
             # reads at a glance)
             axp = fig.add_subplot(gsn[0, 1], projection='polar')
             if edge_means:
-                emax = max(edge_means.values())
+                evs = pd.Series(edge_means)
+                emin_, emax_ = evs.min(), evs.max()
+                rng_e = (emax_ - emin_) or 1.0
                 imp_secs = set()
                 if len(synth):
                     s_ang = np.arctan2(synth['y_px'] - cy, synth['x_px'] - cx)
@@ -263,19 +265,23 @@ def build(base_dir, pixel_overrides):
                 for si, ev in edge_means.items():
                     th_c = -np.pi + (si + 0.5) * 2 * np.pi / N_SEC
                     is_imp = si in imp_secs
-                    axp.bar(th_c, ev / emax, width=2 * np.pi / N_SEC * 0.95,
-                            color=plt.cm.hsv(si / N_SEC), alpha=0.9,
-                            edgecolor='#00E5FF' if is_imp else 'white',
-                            linewidth=1.8 if is_imp else 0.5,
+                    # stretch min->max so the RANKING is visible, not compressed
+                    L = 0.3 + 0.7 * (ev - emin_) / rng_e
+                    axp.bar(th_c, L, width=2 * np.pi / N_SEC * 0.95,
+                            color=plt.cm.hsv(si / N_SEC), alpha=0.95,
+                            edgecolor='#00B8CC' if is_imp else 'white',
+                            linewidth=2.0 if is_imp else 0.6,
                             hatch='///' if is_imp else None)
-                    axp.text(th_c, 1.22, str(si + 1), ha='center', va='center',
-                             fontsize=6, color='#444444')
+                    axp.text(th_c, 1.28, str(si + 1), ha='center', va='center',
+                             fontsize=8, fontweight='bold', color='#333333')
                 axp.plot(np.linspace(-np.pi, np.pi, 100), np.ones(100),
-                         color='gray', lw=0.6, ls=':')
-            axp.set_ylim(0, 1.3)
+                         color='gray', lw=0.7, ls=':')
+            axp.set_ylim(0, 1.45)
             axp.set_yticklabels([])
             axp.set_xticklabels([])
-            axp.set_title('edge intensity per pie\n(hatched = contains imputed)', fontsize=8, pad=8)
+            axp.grid(False)
+            axp.set_title('PIE KEY: hue = its line in N\nlength = edge SMAD2 (rank)',
+                          fontsize=8, pad=6)
 
             ax = fig.add_subplot(gs[4, 0:4])
             ax.axis('off')
@@ -355,11 +361,14 @@ def build(base_dir, pixel_overrides):
                     sa2 = np.arctan2(synth['y_px'] - cy, synth['x_px'] - cx)
                     imp_secs2 = set(np.clip(((sa2 + np.pi) / (2 * np.pi) * N_SEC)
                                             .astype(int), 0, N_SEC - 1))
-                emax2 = max(edge_means.values())
+                evs2 = pd.Series(edge_means)
+                emin2, emax2 = evs2.min(), evs2.max()
+                rng2 = (emax2 - emin2) or 1.0
                 for si, ev in edge_means.items():
                     th2 = -np.pi + (si + 0.5) * 2 * np.pi / N_SEC
                     imp2 = si in imp_secs2
-                    axq.bar(th2, ev / emax2, width=2 * np.pi / N_SEC * 0.95,
+                    axq.bar(th2, 0.3 + 0.7 * (ev - emin2) / rng2,
+                            width=2 * np.pi / N_SEC * 0.95,
                             color=plt.cm.hsv(si / N_SEC), alpha=0.9,
                             edgecolor='#00E5FF' if imp2 else 'white',
                             linewidth=2 if imp2 else 0.6,
