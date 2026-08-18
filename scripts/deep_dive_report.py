@@ -317,7 +317,7 @@ def build(base_dir, pixel_overrides):
             pdf.savefig(fig, bbox_inches='tight')
             plt.close(fig)
 
-print(f'  page: {short} ({len(kept)} kept)')
+            print(f'  page: {short} ({len(kept)} kept)')
     print(f'PDF: {pdf_path} ({os.path.getsize(pdf_path) / 1e6:.1f} MB)')
     return pdf_path
 
