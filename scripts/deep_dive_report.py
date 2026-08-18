@@ -66,7 +66,11 @@ def build(base_dir, pixel_overrides):
             nuc = pd.read_csv(os.path.join(OUT, f'{stem}_nuclei.csv'))
             pix = pd.read_csv(os.path.join(OUT, f'{stem}_radial.csv'))
             sc = pixel_size_for(img, pixel_overrides)
+            if 'imputed' not in nuc.columns:
+                nuc['imputed'] = False
             kept = nuc[nuc['size_ok'] & (nuc['distance_um'] <= MAX_R_UM)].copy()
+            synth = kept[kept['imputed']]
+            kept_real = kept[~kept['imputed']]
             rej = nuc[~nuc['size_ok']]
             cx, cy = kept['x_px'].mean(), kept['y_px'].mean()
             kept['x_um'] = (kept['x_px'] - cx) * sc
@@ -130,7 +134,11 @@ def build(base_dir, pixel_overrides):
             ax.grid(alpha=0.3)
             ax.set_title('C  per-pixel profiles')
             ax = fig.add_subplot(gs[1, 2])
-            ax.scatter(kept['distance_um'], kept['C2'], s=4, alpha=0.25, color='gray')
+            ax.scatter(kept_real['distance_um'], kept_real['C2'], s=4, alpha=0.25, color='gray')
+            if len(synth):
+                ax.scatter(synth['distance_um'], synth['C2'], s=14, facecolor='none',
+                           edgecolor='#E64B35', lw=0.7, label=f'{len(synth)} imputed')
+                ax.legend(fontsize=7)
             if len(kept) > 30:
                 sm = lowess(kept['C2'], kept['distance_um'], frac=0.25,
                             return_sorted=True)
@@ -151,12 +159,12 @@ def build(base_dir, pixel_overrides):
             ax.bar(r_edges[:-1] + 10, cnts / annulus * 1000, width=18, color='#8491B4')
             ax.axhline(PRED_DENS, color='k', ls='--', label='marble-in-jar max')
             ax.legend(fontsize=7)
-            ax.set_title('F  density vs prediction')
-            ax = fig.add_subplot(gs[2, 1])
+            ax.set_title('F  density vs prediction (1D)')
+            ax = fig.add_subplot(gs[2, 2])
             ax.bar(wrow['bin'], wrow['coverage'].clip(0, 1), width=9, color='#00A087')
             ax.set_ylim(0, 1.05)
-            ax.set_title('G  technical weight per bin')
-            ax = fig.add_subplot(gs[2, 2])
+            ax.set_title('H  technical weight per bin')
+            ax = fig.add_subplot(gs[2, 3])
             bm = kept.groupby('bin')[['eccentricity', 'cos2_radial']].mean()
             ax.plot(bm.index, bm['eccentricity'], color='#4DBBD5', lw=2,
                     label='eccentricity')
@@ -166,16 +174,16 @@ def build(base_dir, pixel_overrides):
             ax.set_ylim(0, 1)
             ax.set_xlim(0, MAX_R_UM + 10)
             ax.legend(fontsize=7)
-            ax.set_title('H  nuclear shape vs radius')
-            ax = fig.add_subplot(gs[2, 3])
+            ax.set_title('I  nuclear shape vs radius')
+            ax = fig.add_subplot(gs[3, 0])
             ax.hexbin(kept['C1'], kept['C2'], gridsize=40, cmap='inferno', bins='log')
             ta = threshold_otsu(kept['C1'].values)
             tb = threshold_otsu(kept['C2'].values)
             ax.axvline(ta, color='w', ls='--', lw=0.8)
             ax.axhline(tb, color='w', ls='--', lw=0.8)
-            ax.set_title('I  DAPI vs SMAD2')
+            ax.set_title('J  DAPI vs SMAD2')
 
-            ax = fig.add_subplot(gs[3, 0], projection='polar')
+            ax = fig.add_subplot(gs[2, 1], projection='polar')
             re2 = np.arange(0, r_col + 20, 20)
             te = np.linspace(-np.pi, np.pi, N_SEC + 1)
             obs, _, _ = np.histogram2d(kept['distance_um'], ang, bins=[re2, te])
@@ -185,7 +193,7 @@ def build(base_dir, pixel_overrides):
             pc = ax.pcolormesh(T, R, occ, cmap='RdYlGn', vmin=0, vmax=1.5)
             ax.set_yticklabels([])
             ax.set_xticklabels([])
-            ax.set_title('J  occupancy vs prediction', pad=10)
+            ax.set_title('G  occupancy vs prediction (2D of F)', pad=10)
             plt.colorbar(pc, ax=ax, shrink=0.6)
 
             ax = fig.add_subplot(gs[3, 1])
@@ -267,6 +275,7 @@ def build(base_dir, pixel_overrides):
             if f0['n_directional_gap_bins'] >= 3:
                 flags.append('directional gaps')
             txt = (f"kept/rej {int(f0['n_nuclei'])}/{int(f0['n_rejected_size'])} "
+                   f"(+{len(synth)} imputed)  "
                    f"({f0['pct_rejected_size']:.0f}%)  occupancy "
                    f"{f0['occupancy_vs_capacity']:.2f}  areaCV {f0['area_cv']:.2f}  "
                    f"dapiCV {f0['dapi_bin_cv']:.2f}  "
