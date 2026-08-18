@@ -209,7 +209,10 @@ def build(base_dir, pixel_overrides):
             ax.set_title('M  SMAD2 intensity by direction', pad=10)
             plt.colorbar(pc, ax=ax, shrink=0.6)
 
-            ax = fig.add_subplot(gs[3, 3])
+            from matplotlib.gridspec import GridSpecFromSubplotSpec
+            gsn = GridSpecFromSubplotSpec(1, 2, subplot_spec=gs[3, 3],
+                                          width_ratios=[2.0, 1.0], wspace=0.05)
+            ax = fig.add_subplot(gsn[0, 0])
             edge_means = {}
             for si in range(N_SEC):
                 g = kept[kept['sector'] == si]
@@ -225,6 +228,26 @@ def build(base_dir, pixel_overrides):
             ax.legend(fontsize=7)
             ax.grid(alpha=0.3)
             ax.set_title('N  SMAD2 per pie (hue = direction)')
+
+            # companion pie diagram: wedge color = curve hue, wedge length = that
+            # pie's edge-zone SMAD2 intensity (so curve <-> direction <-> intensity
+            # reads at a glance)
+            axp = fig.add_subplot(gsn[0, 1], projection='polar')
+            if edge_means:
+                emax = max(edge_means.values())
+                for si, ev in edge_means.items():
+                    th_c = -np.pi + (si + 0.5) * 2 * np.pi / N_SEC
+                    axp.bar(th_c, ev / emax, width=2 * np.pi / N_SEC * 0.95,
+                            color=plt.cm.hsv(si / N_SEC), alpha=0.9,
+                            edgecolor='white', linewidth=0.5)
+                    axp.text(th_c, 1.22, str(si + 1), ha='center', va='center',
+                             fontsize=6, color='#444444')
+                axp.plot(np.linspace(-np.pi, np.pi, 100), np.ones(100),
+                         color='gray', lw=0.6, ls=':')
+            axp.set_ylim(0, 1.3)
+            axp.set_yticklabels([])
+            axp.set_xticklabels([])
+            axp.set_title('edge intensity\nper pie', fontsize=8, pad=8)
 
             ax = fig.add_subplot(gs[4, 0:4])
             ax.axis('off')
