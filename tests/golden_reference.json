@@ -1,0 +1,177 @@
+{
+ "config": {
+  "PIXEL_SIZE_OVERRIDES": {
+   "72+ActA": 1.0358,
+   "72CAG+ActA": 0.5179
+  },
+  "SEG_OVERRIDES": {
+   "72CAG+ActA_": {
+    "prob_thresh": 0.35,
+    "unsharp": true
+   }
+  },
+  "TUNING_PROFILE": "standard"
+ },
+ "fingerprint": {
+  "counts": {
+   "72+ActA2_488 ZO1_555 SMAD2_20x.tif": {
+    "imputed": 0,
+    "kept": 894,
+    "rejected": 61
+   },
+   "72+ActA_488 ZO1_555 SMAD2_20x.tif": {
+    "imputed": 0,
+    "kept": 822,
+    "rejected": 78
+   },
+   "72CAG+ActA2_488 ZO1_555 SMAD2_20x.tif": {
+    "imputed": 0,
+    "kept": 939,
+    "rejected": 90
+   },
+   "72CAG+ActA_488 ZO1_555 SMAD2_20x.tif": {
+    "imputed": 0,
+    "kept": 869,
+    "rejected": 206
+   }
+  },
+  "features": {
+   "72+ActA2_488 ZO1_555 SMAD2_20x.tif|DAPI": {
+    "center_edge_ratio": 0.72671,
+    "peak_radius_um": 212.177
+   },
+   "72+ActA2_488 ZO1_555 SMAD2_20x.tif|SMAD2": {
+    "center_edge_ratio": 0.60985,
+    "peak_radius_um": 219.037
+   },
+   "72+ActA2_488 ZO1_555 SMAD2_20x.tif|ZO-1": {
+    "center_edge_ratio": 0.4879,
+    "peak_radius_um": 218.084
+   },
+   "72+ActA_488 ZO1_555 SMAD2_20x.tif|DAPI": {
+    "center_edge_ratio": 1.13808,
+    "peak_radius_um": 5.278
+   },
+   "72+ActA_488 ZO1_555 SMAD2_20x.tif|SMAD2": {
+    "center_edge_ratio": 0.86812,
+    "peak_radius_um": 213.07
+   },
+   "72+ActA_488 ZO1_555 SMAD2_20x.tif|ZO-1": {
+    "center_edge_ratio": 0.87818,
+    "peak_radius_um": 208.001
+   },
+   "72CAG+ActA2_488 ZO1_555 SMAD2_20x.tif|DAPI": {
+    "center_edge_ratio": 1.04961,
+    "peak_radius_um": 211.463
+   },
+   "72CAG+ActA2_488 ZO1_555 SMAD2_20x.tif|SMAD2": {
+    "center_edge_ratio": 0.90678,
+    "peak_radius_um": 226.208
+   },
+   "72CAG+ActA2_488 ZO1_555 SMAD2_20x.tif|ZO-1": {
+    "center_edge_ratio": 0.91008,
+    "peak_radius_um": 217.231
+   },
+   "72CAG+ActA_488 ZO1_555 SMAD2_20x.tif|DAPI": {
+    "center_edge_ratio": 0.93228,
+    "peak_radius_um": 181.381
+   },
+   "72CAG+ActA_488 ZO1_555 SMAD2_20x.tif|SMAD2": {
+    "center_edge_ratio": 0.90429,
+    "peak_radius_um": 222.148
+   },
+   "72CAG+ActA_488 ZO1_555 SMAD2_20x.tif|ZO-1": {
+    "center_edge_ratio": 0.75783,
+    "peak_radius_um": 215.033
+   }
+  },
+  "profiles": {
+   "72+ActA2_488 ZO1_555 SMAD2_20x.tif|C0|r100": 0.310163,
+   "72+ActA2_488 ZO1_555 SMAD2_20x.tif|C0|r150": 0.393138,
+   "72+ActA2_488 ZO1_555 SMAD2_20x.tif|C0|r200": 0.482663,
+   "72+ActA2_488 ZO1_555 SMAD2_20x.tif|C0|r240": 0.426643,
+   "72+ActA2_488 ZO1_555 SMAD2_20x.tif|C0|r50": 0.21654,
+   "72+ActA2_488 ZO1_555 SMAD2_20x.tif|C1|r100": 0.583559,
+   "72+ActA2_488 ZO1_555 SMAD2_20x.tif|C1|r150": 0.640353,
+   "72+ActA2_488 ZO1_555 SMAD2_20x.tif|C1|r200": 0.6849,
+   "72+ActA2_488 ZO1_555 SMAD2_20x.tif|C1|r240": 0.5166,
+   "72+ActA2_488 ZO1_555 SMAD2_20x.tif|C1|r50": 0.456752,
+   "72+ActA2_488 ZO1_555 SMAD2_20x.tif|C2|r100": 0.424261,
+   "72+ActA2_488 ZO1_555 SMAD2_20x.tif|C2|r150": 0.506286,
+   "72+ActA2_488 ZO1_555 SMAD2_20x.tif|C2|r200": 0.583821,
+   "72+ActA2_488 ZO1_555 SMAD2_20x.tif|C2|r240": 0.599681,
+   "72+ActA2_488 ZO1_555 SMAD2_20x.tif|C2|r50": 0.353426,
+   "72+ActA_488 ZO1_555 SMAD2_20x.tif|C0|r100": 0.332077,
+   "72+ActA_488 ZO1_555 SMAD2_20x.tif|C0|r150": 0.349733,
+   "72+ActA_488 ZO1_555 SMAD2_20x.tif|C0|r200": 0.406256,
+   "72+ActA_488 ZO1_555 SMAD2_20x.tif|C0|r240": 0.327433,
+   "72+ActA_488 ZO1_555 SMAD2_20x.tif|C0|r50": 0.348155,
+   "72+ActA_488 ZO1_555 SMAD2_20x.tif|C1|r100": 0.553733,
+   "72+ActA_488 ZO1_555 SMAD2_20x.tif|C1|r150": 0.516487,
+   "72+ActA_488 ZO1_555 SMAD2_20x.tif|C1|r200": 0.530216,
+   "72+ActA_488 ZO1_555 SMAD2_20x.tif|C1|r240": 0.411949,
+   "72+ActA_488 ZO1_555 SMAD2_20x.tif|C1|r50": 0.520714,
+   "72+ActA_488 ZO1_555 SMAD2_20x.tif|C2|r100": 0.44681,
+   "72+ActA_488 ZO1_555 SMAD2_20x.tif|C2|r150": 0.474882,
+   "72+ActA_488 ZO1_555 SMAD2_20x.tif|C2|r200": 0.533664,
+   "72+ActA_488 ZO1_555 SMAD2_20x.tif|C2|r240": 0.499592,
+   "72+ActA_488 ZO1_555 SMAD2_20x.tif|C2|r50": 0.454922,
+   "72CAG+ActA2_488 ZO1_555 SMAD2_20x.tif|C0|r100": 0.44815,
+   "72CAG+ActA2_488 ZO1_555 SMAD2_20x.tif|C0|r150": 0.473518,
+   "72CAG+ActA2_488 ZO1_555 SMAD2_20x.tif|C0|r200": 0.542306,
+   "72CAG+ActA2_488 ZO1_555 SMAD2_20x.tif|C0|r240": 0.50149,
+   "72CAG+ActA2_488 ZO1_555 SMAD2_20x.tif|C0|r50": 0.45905,
+   "72CAG+ActA2_488 ZO1_555 SMAD2_20x.tif|C1|r100": 0.651487,
+   "72CAG+ActA2_488 ZO1_555 SMAD2_20x.tif|C1|r150": 0.640885,
+   "72CAG+ActA2_488 ZO1_555 SMAD2_20x.tif|C1|r200": 0.675744,
+   "72CAG+ActA2_488 ZO1_555 SMAD2_20x.tif|C1|r240": 0.596671,
+   "72CAG+ActA2_488 ZO1_555 SMAD2_20x.tif|C1|r50": 0.64821,
+   "72CAG+ActA2_488 ZO1_555 SMAD2_20x.tif|C2|r100": 0.537689,
+   "72CAG+ActA2_488 ZO1_555 SMAD2_20x.tif|C2|r150": 0.543687,
+   "72CAG+ActA2_488 ZO1_555 SMAD2_20x.tif|C2|r200": 0.609015,
+   "72CAG+ActA2_488 ZO1_555 SMAD2_20x.tif|C2|r240": 0.672522,
+   "72CAG+ActA2_488 ZO1_555 SMAD2_20x.tif|C2|r50": 0.551835,
+   "72CAG+ActA_488 ZO1_555 SMAD2_20x.tif|C0|r100": 0.370915,
+   "72CAG+ActA_488 ZO1_555 SMAD2_20x.tif|C0|r150": 0.448036,
+   "72CAG+ActA_488 ZO1_555 SMAD2_20x.tif|C0|r200": 0.531546,
+   "72CAG+ActA_488 ZO1_555 SMAD2_20x.tif|C0|r240": 0.451281,
+   "72CAG+ActA_488 ZO1_555 SMAD2_20x.tif|C0|r50": 0.350329,
+   "72CAG+ActA_488 ZO1_555 SMAD2_20x.tif|C1|r100": 0.603071,
+   "72CAG+ActA_488 ZO1_555 SMAD2_20x.tif|C1|r150": 0.676563,
+   "72CAG+ActA_488 ZO1_555 SMAD2_20x.tif|C1|r200": 0.662392,
+   "72CAG+ActA_488 ZO1_555 SMAD2_20x.tif|C1|r240": 0.630177,
+   "72CAG+ActA_488 ZO1_555 SMAD2_20x.tif|C1|r50": 0.56164,
+   "72CAG+ActA_488 ZO1_555 SMAD2_20x.tif|C2|r100": 0.509309,
+   "72CAG+ActA_488 ZO1_555 SMAD2_20x.tif|C2|r150": 0.540995,
+   "72CAG+ActA_488 ZO1_555 SMAD2_20x.tif|C2|r200": 0.580717,
+   "72CAG+ActA_488 ZO1_555 SMAD2_20x.tif|C2|r240": 0.636703,
+   "72CAG+ActA_488 ZO1_555 SMAD2_20x.tif|C2|r50": 0.495888
+  },
+  "weights": {
+   "72+ActA2_488 ZO1_555 SMAD2_20x.tif": 0.52289,
+   "72+ActA_488 ZO1_555 SMAD2_20x.tif": 0.48567,
+   "72CAG+ActA2_488 ZO1_555 SMAD2_20x.tif": 0.45507,
+   "72CAG+ActA_488 ZO1_555 SMAD2_20x.tif": 0.45556
+  }
+ },
+ "images": [
+  "72+ActA_488 ZO1_555 SMAD2_20x.tif",
+  "72+ActA2_488 ZO1_555 SMAD2_20x.tif",
+  "72CAG+ActA_488 ZO1_555 SMAD2_20x.tif",
+  "72CAG+ActA2_488 ZO1_555 SMAD2_20x.tif"
+ ],
+ "machine": "macOS-26.6.2-arm64-arm-64bit",
+ "python": "3.10.13",
+ "recorded": "2026-11-25T18:53:27",
+ "sample_radii_um": [
+  50,
+  100,
+  150,
+  200,
+  240
+ ],
+ "tolerance": {
+  "abs": 0.0001,
+  "rel": 0.001
+ }
+}
