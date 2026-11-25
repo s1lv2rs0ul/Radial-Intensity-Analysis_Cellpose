@@ -17,6 +17,7 @@ modes, per-colony statistics, and publication-ready figures out of one notebook.
 | **QC** | Angular asymmetry metric (CV across 12 sectors) flags off-center/asymmetric colonies; failed images logged, never silently skipped |
 | **Figures** | Per-image diagnostics + a multi-panel publication figure (300 dpi PNG + vector PDF, npg palette) |
 | **Input flexibility** | Accepts 4D `(Z, C, Y, X)` stacks or already max-projected 3D `(C, Y, X)` TIFFs |
+| **Runtime / tuning** | Every run times itself per stage (`summary/runtime_profile.csv` + `.png`); `TUNING_PROFILE` presets (`screening` / `standard` / `publication`) trade speed vs fidelity on high-content batches — measured costs in [docs/SCALING.md](docs/SCALING.md) |
 
 **v1.1 — methods adopted from the Tapenade paper** (Gros et al., *eLife* 2026,
 [doi:10.7554/eLife.107154](https://doi.org/10.7554/eLife.107154) — the group whose
